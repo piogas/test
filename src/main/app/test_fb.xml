@@ -54,7 +54,7 @@ http://www.mulesoft.org/schema/mule/apikit http://www.mulesoft.org/schema/mule/a
 	</flow>
     <flow name="test_fbFlow">
         <http:listener config-ref="HTTP_Listener_Configuration" path="/jsonToXml" allowedMethods="POST"  doc:name="HTTP"/>
-        <set-payload value="#['{&quot;rootElement&quot;: ' + message.payloadAs(java.lang.String)+ '}']" encoding="UTF-8" mimeType="application/json" doc:name="Set Root Element"/>
+        <set-payload value="#['{&quot;rootElement&quot;: ' + message.payloadAs(java.lang.String)+ '}']" encoding="UTF-8" mimeType="application/json" doc:name="Set Root Element "/>
         <json:json-to-xml-transformer doc:name="JSON to XML"/>
         <logger message="#[message.payloadAs(java.lang.String)]" level="INFO" doc:name="Logger"/>
         <mulexml:xslt-transformer xsl-file="C:\Users\Piotr\AnypointStudio\workspace\test_fb\xslt\transformata.xsl" outputEncoding="UTF-8" maxIdleTransformers="2" maxActiveTransformers="5" doc:name="XSLT"/>
