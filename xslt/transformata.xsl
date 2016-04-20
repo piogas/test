@@ -11,7 +11,7 @@
 		<FacebookPosts>
 			<xsl:choose>
 				<xsl:when test="contains(message, '[Facebook]')">
-					<header>Yo! Look on my genius commit!</header>
+					<header>Yo! Look at my genius commit!</header>
 					<postToFacebook>true</postToFacebook>
 					<msg>
 						<xsl:call-template name="removePrefix">
