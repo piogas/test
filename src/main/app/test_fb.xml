@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:mulexml="http://www.mulesoft.org/schema/mule/xml" xmlns:https="http://www.mulesoft.org/schema/mule/https" xmlns:twitter="http://www.mulesoft.org/schema/mule/twitter" xmlns:ajax="http://www.mulesoft.org/schema/mule/ajax"
+	xmlns:sfdc="http://www.mulesoft.org/schema/mule/sfdc" xmlns:json="http://www.mulesoft.org/schema/mule/json"
+
+	xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:facebook="http://www.mulesoft.org/schema/mule/facebook" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/sfdc http://www.mulesoft.org/schema/mule/sfdc/current/mule-sfdc.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/facebook http://www.mulesoft.org/schema/mule/facebook/2.0/mule-facebook.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/ajax http://www.mulesoft.org/schema/mule/ajax/current/mule-ajax.xsd
+http://www.mulesoft.org/schema/mule/twitter http://www.mulesoft.org/schema/mule/twitter/current/mule-twitter.xsd
+http://www.mulesoft.org/schema/mule/https http://www.mulesoft.org/schema/mule/https/current/mule-https.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd
+http://www.mulesoft.org/schema/mule/apikit http://www.mulesoft.org/schema/mule/apikit/current/mule-apikit.xsd">
+
+	<facebook:config-with-oauth name="Facebook-config"
+		consumerKey="1042032552509005" consumerSecret="dabd5b4d17fe8ad65ae8bfbd00d352d3"
+		doc:name="Facebook" scope="email">
+		<facebook:oauth-callback-config domain="localhost"
+			localPort="1100" remotePort="1100" path="oauth"/>
+	</facebook:config-with-oauth>
+    <https:connector name="HTTP_HTTPS" cookieSpec="netscape" validateConnections="true" sendBufferSize="0" receiveBufferSize="0" receiveBacklog="0" clientSoTimeout="10000" serverSoTimeout="10000" socketSoLinger="0" doc:name="HTTP-HTTPS"/>
+    <http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration"/>
+    <http:request-config name="HTTP_Request_Configuration" host="localhost" port="8089" basePath="/" doc:name="HTTP Request Configuration"/>
+    
+	<flow name="AutorizeFacebook" >
+		<http:inbound-endpoint exchange-pattern="request-response"
+			host="localhost" port="1111" doc:name="HTTP (Deprecated)" path="facebookauthorize" />
+		<facebook:authorize config-ref="Facebook-config" doc:name="Authorize" />
+        <logger message="Siema #[flowVars]" level="INFO" doc:name="Logger"/>
+		<choice doc:name="Choice">
+			<when expression="flowVars.OAuthAccessTokenId != null">
+				<logger message="Authorization Successful" level="INFO"
+					doc:name="Logger" />
+				<set-payload value="Facebook Authorization Successful"
+					doc:name="Set Payload" />
+			</when>
+			<otherwise>
+				<logger message="Authorization Failed" level="INFO" doc:name="Logger" />
+				<set-payload value="Facebook Authorization Failed"
+					doc:name="Set Payload" />
+			</otherwise>
+		</choice>
+	</flow>
+    <flow name="test_fbFlow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/jsonToXml" allowedMethods="POST"  doc:name="HTTP"/>
+        <set-payload value="#['{&quot;rootElement&quot;: ' + message.payloadAs(java.lang.String)+ '}']" encoding="UTF-8" mimeType="application/json" doc:name="Set Root Element"/>
+        <json:json-to-xml-transformer doc:name="JSON to XML"/>
+        <logger message="#[message.payloadAs(java.lang.String)]" level="INFO" doc:name="Logger"/>
+        <mulexml:xslt-transformer xsl-file="C:\Users\Piotr\AnypointStudio\workspace\test_fb\xslt\transformata.xsl" outputEncoding="UTF-8" maxIdleTransformers="2" maxActiveTransformers="5" doc:name="XSLT"/>
+        <json:xml-to-json-transformer encoding="UTF-8" doc:name="XML to JSON"/>
+        <http:request config-ref="HTTP_Request_Configuration" path="/jsonToXml" method="POST" doc:name="HTTP"/>
+    </flow>
+</mule>
