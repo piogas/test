@@ -2,15 +2,12 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
 	<xsl:output method="xml" indent="yes"/>
-
 	<xsl:template match="rootElement">
 		<commits>
 			<xsl:apply-templates select="commits"/>  
 		</commits>
 	</xsl:template>
-
 	<xsl:template match="commits">
-
 		<facebookPosts>
 			<xsl:choose>
 				<xsl:when test="contains(message, '[Facebook]')">
@@ -44,13 +41,9 @@
 				<xsl:value-of select="url" />
 			</url>
 		</facebookPosts>
-
 	</xsl:template>
-
-
 	<xsl:template name="removePrefix">
 		<xsl:param name="value"/>
 		<xsl:value-of select="substring-after($value, '[Facebook]')"/>
 	</xsl:template>
-
 </xsl:stylesheet>
