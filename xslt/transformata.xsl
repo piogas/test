@@ -4,11 +4,14 @@
 	<xsl:output method="xml" indent="yes"/>
 
 	<xsl:template match="rootElement">
-		<xsl:apply-templates select="commits"/>  
+		<commits>
+			<xsl:apply-templates select="commits"/>  
+		</commits>
 	</xsl:template>
 
 	<xsl:template match="commits">
-		<FacebookPosts>
+
+		<facebookPosts>
 			<xsl:choose>
 				<xsl:when test="contains(message, '[Facebook]')">
 					<header>Yo! Look at my genius commit!</header>
@@ -40,12 +43,14 @@
 			<url>
 				<xsl:value-of select="url" />
 			</url>
-		</FacebookPosts>
+		</facebookPosts>
+
 	</xsl:template>
-	
+
+
 	<xsl:template name="removePrefix">
 		<xsl:param name="value"/>
 		<xsl:value-of select="substring-after($value, '[Facebook]')"/>
 	</xsl:template>
-	
+
 </xsl:stylesheet>
